@@ -18,6 +18,6 @@ contract NFT is Context, ERC721Enumerable, Ownable {
     }
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
-        return string(abi.encodePacked("https://example.com/", tokenId.toString(), ".json"));
+        return string(abi.encodePacked("https://res.cloudinary.com/dvtpktk39/raw/upload/v1664852396/metadata/", tokenId.toString(), ".json"));
     }
 }
