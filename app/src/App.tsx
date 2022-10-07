@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 // import { fileURLToPath } from "url";
+import NFT from './abi/NFT.json';
 import './App.css';
 import Web3 from 'web3';
 import axios from 'axios';
-import NFT from './abi/NFT.json';
 import { AbiItem } from 'web3-utils'
 
 function App() {
