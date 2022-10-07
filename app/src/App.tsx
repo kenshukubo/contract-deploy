@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-// import { fileURLToPath } from "url";
 import NFT from './abi/NFT.json';
 import './App.css';
 import Web3 from 'web3';
@@ -7,11 +6,9 @@ import axios from 'axios';
 import { AbiItem } from 'web3-utils'
 
 function App() {
-  // const [images, setImages] = useState<File[]>([]);
   const [file, setFile] = useState<File | null>(null)
   const [metaMaskFlag, setMetaMaskFlag] = useState<boolean>(false);
   const [account, setAccount] = useState(null);
-	// const [errorMessage, setErrorMessage] = useState(null);
 	const [contract, setContract] = useState<any>(null);
 
   const endpoint = process.env.PROVIDER_URL;
@@ -35,8 +32,7 @@ function App() {
       }
     } catch (err: any) {
       if (err.code === 4001) {
-          // EIP-1193 userRejectedRequest error
-          // ユーザーが接続を拒否するとここに来ます
+          //-- ユーザーが接続を拒否すると --
           console.log('Please connect to MetaMask.');
       } else {
           console.error(err);
