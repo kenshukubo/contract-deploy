@@ -47,26 +47,67 @@ function App() {
     setFile(files[0])
 	};
 
+  const uploadCloudinary = async (obj: any) => {
+    try {
+      const res = await axios(obj);
+      const publicId = res.data.public_id.substr(res.data.public_id.indexOf('/') + 1);
+      return publicId;
+    } catch (err: any) {
+      console.log(err)
+    }
+  }
+
   const handleOnSubmit = async (e: React.SyntheticEvent): Promise<void> => {
 		e.preventDefault();
     if (!file) return
 
-    const cloudinaryUploadPreset = "voahej67"
     const cloudName = "dvtpktk39";
-		const formData  = new FormData();
+    const imageUploadPreset:any = "voahej67"
+    const metadataUploadPreset:any = "mjvrwvlb"
+    const imageUploadURL:string = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+    const metaDataUploadURL:string = `https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`;
+
+    var formData = new FormData();
     formData.append("file", file)
-    formData.append("upload_preset", cloudinaryUploadPreset)
-    const cloudinaryUploadURL = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-    const requestObj = {
+    formData.append("upload_preset", imageUploadPreset)
+    var cloudinaryUploadURL = imageUploadURL;
+    var requestObj = {
       url: cloudinaryUploadURL,
       method: "POST",
       data: formData
     }
-    try {
-      await axios(requestObj);
-    } catch (err: any) {
-      console.log(err)
+    
+    //-- 画像のアップロード --
+    const publicId = await uploadCloudinary(requestObj);
+
+    // -- ミントされた数を取得 --
+    const mintCount = contract.methods.totalSupply()._method.outputs.length;
+    //-- メタデータ作成 --
+    const metadata = {
+      "name": "test",
+      "image": `https://res.cloudinary.com/dvtpktk39/image/upload/v1664850218/nft-images/${publicId}.png`,
+      "external_url": `https://res.cloudinary.com/dvtpktk39/raw/upload/v1664852396/metadata/${mintCount}.json`,
+      "description": "testDesc"
     }
+    // const metadata = {
+    //   "name": "test",
+    //   "image": `https://res.cloudinary.com/dvtpktk39/image/upload/v1664850218/nft-images/0.png`,
+    //   "external_url": `https://res.cloudinary.com/dvtpktk39/raw/upload/v1664852396/metadata/1.json`,
+    //   "description": "testDesc"
+    // }
+    const jsonObj = JSON.stringify(metadata);
+
+    var formData  = new FormData();
+    formData.append("file", jsonObj)
+    formData.append("upload_preset", metadataUploadPreset)
+    var cloudinaryUploadURL = metaDataUploadURL;
+    var requestObj = {
+      url: cloudinaryUploadURL,
+      method: "POST",
+      data: formData
+    }
+    // -- JSONファイルアップロード --
+    uploadCloudinary(requestObj);
 
     // const tx = {
     //   from: account,
@@ -100,7 +141,7 @@ function App() {
         />
         <input
           type="file"
-          accept="image/*,.png,.jpg,.jpeg,.gif"
+          // accept="image/*,.png,.jpg,.jpeg,.gif"
           className='App-input'
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             handleOnAddImage(e)
