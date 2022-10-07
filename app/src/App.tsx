@@ -17,8 +17,9 @@ function App() {
 	useEffect(() => {
 		var tmpFlag = window.ethereum && window.ethereum.isMetaMask;
 		setMetaMaskFlag(tmpFlag);
+    //-- メタマスク接続 --
     connectWallet();
-    
+    //-- コントラクトに接続 --
     const web3 = new Web3(`https://polygon-mumbai.infura.io/v3/${process.env.INFURA_PROVIDER_ID}`);
     const nftContract = new web3.eth.Contract(NFT.abi as AbiItem[], contractAddress)
     setContract(nftContract);
