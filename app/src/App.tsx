@@ -13,6 +13,9 @@ function App() {
 
   const [file, setFile] = useState<File | null>(null)
   const [account, setAccount] = useState<string>("");
+  const [minting, setMinting] = useState<boolean>(false);
+  //-- レスポンス用 --
+  const [openseaURL, setURL] = useState<string>("");
 
   useEffect(()=>{
     connectWallet();
@@ -54,6 +57,7 @@ function App() {
   const handleOnSubmit = async (e: React.SyntheticEvent): Promise<void> => {
 		e.preventDefault();
     if (!file) return
+    setMinting(true);
 
     // const imageUploadPreset = process.env.REACT_APP_CLOUDINARY_IMAGE_UPLOAD_PRESET as string;
     const imageUploadPreset:string = "voahej67";
@@ -74,11 +78,15 @@ function App() {
     }
 
     //-- 画像のアップロード --
-    const publicId = await uploadCloudinary(requestObj);
+    const publicId:string = await uploadCloudinary(requestObj);
     if (!publicId) return
 
     //-- ミントされた数の合計値取得
     const mintCount = await contract.methods.totalSupply().call();
+    //-- OpenSeaのURL --
+    const tokenId:number = mintCount;
+    const url = `https://testnets.opensea.io/ja/assets/mumbai/${contractAddress}/${tokenId}`
+    setURL(url);
 
     //-- メタデータ作成 --
     const metadata = {
@@ -103,7 +111,7 @@ function App() {
       data: formData
     }
     //-- JSONファイルアップロード --
-    await uploadCloudinary(requestObj);
+    uploadCloudinary(requestObj);
 
     //-- MINT --
     const nonce = await web3!.eth.getTransactionCount(account, "latest");
@@ -133,12 +141,20 @@ function App() {
       console.log("Promise failed:", err);
       alert("NFT作成失敗");
     }
+    setMinting(false);
 	};
+
+  let mintingMessage;
+  if(minting) mintingMessage = <p>Creating now ..</p>
+
+  let openseaLink;
+  if(openseaURL) openseaLink = <a href={openseaURL} target="_blank" rel="nofollow">View NFT</a>
 
   return (
     <div className="App">
       <header className="App-header">
         <h2>Mint Test</h2>
+        {mintingMessage}
       </header>
       <form className="App-form" onSubmit={(e) => handleOnSubmit(e)}>
         <img
@@ -163,6 +179,7 @@ function App() {
           >
             MINT
         </button>
+        {openseaLink}
       </form>
     </div>
   );
