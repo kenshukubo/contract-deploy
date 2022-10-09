@@ -107,20 +107,20 @@ function App() {
     // -- JSONファイルアップロード --
     uploadCloudinary(requestObj);
 
-    // const tx = {
-    //   from: account,
-    //   to: contractAddress,
-    //   data: contract.methods.mint(this.uri).encodeABI(),
-    // };
-    // try {
-    //   await window.ethereum.request({
-    //     method: "eth_sendTransaction",
-    //     params: [tx],
-    //   });
-    //   alert("NFT作成成功");
-    // } catch (error) {
-    //   alert("NFT作成失敗");
-    // }
+    const tx = {
+      from: account,
+      to: contractAddress,
+      data: contract.methods.mint(this.uri).encodeABI(),
+    };
+    try {
+      await window.ethereum.request({
+        method: "eth_sendTransaction",
+        params: [tx],
+      });
+      alert("NFT作成成功");
+    } catch (error) {
+      alert("NFT作成失敗");
+    }
 	};
 
   return (
@@ -139,7 +139,7 @@ function App() {
         />
         <input
           type="file"
-          // accept="image/*,.png,.jpg,.jpeg,.gif"
+          accept="image/*,.png,.jpg,.jpeg,.gif"
           className='App-input'
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             handleOnAddImage(e)
