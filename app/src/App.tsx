@@ -6,24 +6,18 @@ import { AbiItem } from 'web3-utils'
 import axios from 'axios';
 
 function App() {
+  const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS as string;
+  const privateKey = process.env.REACT_APP_PRIVATE_KEY as string;
+  const web3:any = new Web3(`https://polygon-mumbai.infura.io/v3/${process.env.REACT_APP_INFURA_PROVIDER_ID}`)
+  const contract:any = new web3.eth.Contract(NFT.abi as AbiItem[], contractAddress as string)
+
   const [file, setFile] = useState<File | null>(null)
-  const [metaMaskFlag, setMetaMaskFlag] = useState<boolean>(false);
-  const [account, setAccount] = useState(null);
-	const [contract, setContract] = useState<any>(null);
+  // const [metaMaskFlag, setMetaMaskFlag] = useState<boolean>(false);
+  const [account, setAccount] = useState<string>("");
 
-  const endpoint = process.env.PROVIDER_URL;
-  const contractAddress = process.env.CONTRACT_ADDRESS;
-
-	useEffect(() => {
-		var tmpFlag = window.ethereum && window.ethereum.isMetaMask;
-		setMetaMaskFlag(tmpFlag);
-    //-- メタマスク接続 --
+  useEffect(()=>{
     connectWallet();
-    //-- コントラクトに接続 --
-    const web3 = new Web3(`https://polygon-mumbai.infura.io/v3/${process.env.INFURA_PROVIDER_ID}`);
-    const nftContract = new web3.eth.Contract(NFT.abi as AbiItem[], contractAddress)
-    setContract(nftContract);
-	},[]);
+  })
 
 	const connectWallet = async () => {
     try {
@@ -61,12 +55,14 @@ function App() {
 		e.preventDefault();
     if (!file) return
 
-    const cloudName = "dvtpktk39";
-    const imageUploadPreset:any = "voahej67"
-    const metadataUploadPreset:any = "mjvrwvlb"
-    const imageUploadURL:string = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-    const metaDataUploadURL:string = `https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`;
+    // const imageUploadPreset = process.env.REACT_APP_CLOUDINARY_IMAGE_UPLOAD_PRESET as string;
+    const imageUploadPreset:string = "voahej67";
+    // const metadataUploadPreset = process.env.REACT_APP_CLOUDINARY_IMAGE_METADATA_PRESET as string;
+    const metadataUploadPreset:string = "mjvrwvlb";
+    const imageUploadURL:string = `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/image/upload`;
+    const metaDataUploadURL:string = `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/raw/upload`;
 
+    //-- 画像の準備 --
     var formData = new FormData();
     formData.append("file", file)
     formData.append("upload_preset", imageUploadPreset)
@@ -76,12 +72,14 @@ function App() {
       method: "POST",
       data: formData
     }
-    
+
     //-- 画像のアップロード --
     const publicId = await uploadCloudinary(requestObj);
+    if (!publicId) return
 
-    // -- ミントされた数を取得 --
-    const mintCount = contract.methods.totalSupply()._method.outputs.length;
+    //-- ミントされた数の合計値取得
+    const mintCount = await contract.methods.totalSupply().call();
+
     //-- メタデータ作成 --
     const metadata = {
       "name": "test",
@@ -104,21 +102,35 @@ function App() {
       method: "POST",
       data: formData
     }
-    // -- JSONファイルアップロード --
-    uploadCloudinary(requestObj);
+    //-- JSONファイルアップロード --
+    await uploadCloudinary(requestObj);
 
+    //-- MINT --
+    const nonce = await web3!.eth.getTransactionCount(account, "latest");
     const tx = {
       from: account,
       to: contractAddress,
-      data: contract.methods.mint(this.uri).encodeABI(),
+      nonce: nonce,
+      gas: 500000,
+      data: contract.methods.mint(account).encodeABI(),
     };
+    const signedTx = await web3!.eth.accounts.signTransaction(tx, privateKey);
     try {
-      await window.ethereum.request({
-        method: "eth_sendTransaction",
-        params: [tx],
-      });
-      alert("NFT作成成功");
-    } catch (error) {
+      const _tx = signedTx.rawTransaction as any;
+      web3!.eth.sendSignedTransaction(_tx, function (err: any, hash: any) {
+        if (!err) {
+          console.log("The hash of your transaction is: ", hash);
+          alert("NFT作成成功");
+        } else {
+          console.log(
+            "Something went wrong when submitting your transaction:",
+            err
+          );
+          alert("NFT作成失敗");
+        }
+      })
+    } catch(err: any) {
+      console.log("Promise failed:", err);
       alert("NFT作成失敗");
     }
 	};
