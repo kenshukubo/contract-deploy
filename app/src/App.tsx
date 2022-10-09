@@ -148,7 +148,7 @@ function App() {
   if(minting) mintingMessage = <p>Creating now ..</p>
 
   let openseaLink;
-  if(openseaURL) openseaLink = <a href={openseaURL} target="_blank" rel="nofollow">View NFT</a>
+  if(openseaURL) openseaLink = <a href={openseaURL} className="App-link" target="_blank" rel="nofollow">View NFT</a>
 
   return (
     <div className="App">
