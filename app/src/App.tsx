@@ -89,17 +89,15 @@ function App() {
       "external_url": `https://res.cloudinary.com/dvtpktk39/raw/upload/v1664852396/metadata/${mintCount}.json`,
       "description": "testDesc"
     }
-    // const metadata = {
-    //   "name": "test",
-    //   "image": `https://res.cloudinary.com/dvtpktk39/image/upload/v1664850218/nft-images/0.png`,
-    //   "external_url": `https://res.cloudinary.com/dvtpktk39/raw/upload/v1664852396/metadata/1.json`,
-    //   "description": "testDesc"
-    // }
     const jsonObj = JSON.stringify(metadata);
+    const blob = new Blob([jsonObj], {
+      type: 'application/json'
+    });
 
     var formData  = new FormData();
-    formData.append("file", jsonObj)
+    formData.append("file", blob)
     formData.append("upload_preset", metadataUploadPreset)
+    formData.append("public_id", mintCount)
     var cloudinaryUploadURL = metaDataUploadURL;
     var requestObj = {
       url: cloudinaryUploadURL,
