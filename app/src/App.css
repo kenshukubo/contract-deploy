@@ -32,10 +32,11 @@
 .App-btn {
   width: 100px;
   cursor: pointer;
+  margin-bottom: 40px;
 }
 
 .App-link {
-  color: #61dafb;
+  color: #fff;
 }
 
 @keyframes App-logo-spin {
