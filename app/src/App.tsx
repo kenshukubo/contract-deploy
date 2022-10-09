@@ -12,7 +12,6 @@ function App() {
   const contract:any = new web3.eth.Contract(NFT.abi as AbiItem[], contractAddress as string)
 
   const [file, setFile] = useState<File | null>(null)
-  // const [metaMaskFlag, setMetaMaskFlag] = useState<boolean>(false);
   const [account, setAccount] = useState<string>("");
 
   useEffect(()=>{
