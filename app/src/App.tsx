@@ -11,6 +11,13 @@ function App() {
   const web3:any = new Web3(`https://polygon-mumbai.infura.io/v3/${process.env.REACT_APP_INFURA_PROVIDER_ID}`)
   const contract:any = new web3.eth.Contract(NFT.abi as AbiItem[], contractAddress as string)
 
+  // const imageUploadPreset = process.env.REACT_APP_CLOUDINARY_IMAGE_UPLOAD_PRESET as string;
+  const imageUploadPreset:string = "voahej67";
+  // const metadataUploadPreset = process.env.REACT_APP_CLOUDINARY_IMAGE_METADATA_PRESET as string;
+  const metadataUploadPreset:string = "mjvrwvlb";
+  const imageUploadURL:string = `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/image/upload`;
+  const metaDataUploadURL:string = `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/raw/upload`;
+  
   const [file, setFile] = useState<File | null>(null)
   const [account, setAccount] = useState<string>("");
   const [minting, setMinting] = useState<boolean>(false);
@@ -57,14 +64,11 @@ function App() {
   const handleOnSubmit = async (e: React.SyntheticEvent): Promise<void> => {
 		e.preventDefault();
     if (!file) return
+    // -- MINT開始 --
     setMinting(true);
 
-    // const imageUploadPreset = process.env.REACT_APP_CLOUDINARY_IMAGE_UPLOAD_PRESET as string;
-    const imageUploadPreset:string = "voahej67";
-    // const metadataUploadPreset = process.env.REACT_APP_CLOUDINARY_IMAGE_METADATA_PRESET as string;
-    const metadataUploadPreset:string = "mjvrwvlb";
-    const imageUploadURL:string = `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/image/upload`;
-    const metaDataUploadURL:string = `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/raw/upload`;
+    //-- MINT --
+    await mint();
 
     //-- 画像の準備 --
     var formData = new FormData();
@@ -113,7 +117,11 @@ function App() {
     //-- JSONファイルアップロード --
     uploadCloudinary(requestObj);
 
-    //-- MINT --
+    //-- MINT終了 --
+    setMinting(false);
+	};
+
+  const mint = async () => {
     const nonce = await web3!.eth.getTransactionCount(account, "latest");
     const tx = {
       from: account,
@@ -141,8 +149,7 @@ function App() {
       console.log("Promise failed:", err);
       alert("NFT作成失敗");
     }
-    setMinting(false);
-	};
+  }
 
   let mintingMessage;
   if(minting) mintingMessage = <p>Creating now ..</p>
