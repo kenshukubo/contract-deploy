@@ -54,7 +54,7 @@ function App() {
     try {
       const res = await axios(obj);
       const publicId = res.data.public_id.substr(res.data.public_id.indexOf('/') + 1);
-      console.log("upload done.")
+      console.log("file upload done.")
       return publicId;
     } catch (err: any) {
       console.log(err)
