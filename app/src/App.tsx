@@ -139,6 +139,7 @@ function App() {
       web3!.eth.sendSignedTransaction(_tx, function (err: any, hash: any) {
         if (!err) {
           console.log("The hash of your transaction is: ", hash);
+          setMintSuccess(true);
           alert("NFT作成成功");
         } else {
           console.log(
