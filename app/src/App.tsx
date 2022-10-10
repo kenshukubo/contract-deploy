@@ -69,6 +69,7 @@ function App() {
 
     //-- MINT --
     await mint();
+    if(!mintSuccess) return;
 
     //-- 画像の準備 --
     var formData = new FormData();
@@ -83,14 +84,10 @@ function App() {
 
     //-- 画像のアップロード --
     const publicId:string = await uploadCloudinary(requestObj);
-    if (!publicId) return
+    if (!publicId) return;
 
     //-- ミントされた数の合計値取得
     const mintCount = await contract.methods.totalSupply().call();
-    //-- OpenSeaのURL --
-    const tokenId:number = mintCount;
-    const url = `https://testnets.opensea.io/ja/assets/mumbai/${contractAddress}/${tokenId}`
-    setURL(url);
 
     //-- メタデータ作成 --
     const metadata = {
@@ -119,6 +116,11 @@ function App() {
 
     //-- MINT終了 --
     setMinting(false);
+
+    //-- OpenSeaのURL --
+    const tokenId:number = mintCount;
+    const url = `https://testnets.opensea.io/ja/assets/mumbai/${contractAddress}/${tokenId}`
+    setURL(url);
 	};
 
   const mint = async () => {
