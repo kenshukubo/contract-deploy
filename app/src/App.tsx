@@ -21,6 +21,7 @@ function App() {
   const [file, setFile] = useState<File | null>(null)
   const [account, setAccount] = useState<string>("");
   const [minting, setMinting] = useState<boolean>(false);
+  const [mintSuccess, setMintSuccess] = useState<boolean>(false);
   //-- レスポンス用 --
   const [openseaURL, setURL] = useState<string>("");
 
